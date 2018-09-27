@@ -1,6 +1,6 @@
 # here is the schema. 
-
-schema <-  read.delim("~/schema.txt",sep = "\n")
+setwd("~/GitRepos/FBI_Database/")
+schema <-  read.delim("schema.txt",sep = "\n")
 
 
 # Time to rewrite this for R. 
@@ -29,10 +29,36 @@ names <- names[-length(names)+1:-length(names)]
 types <- types[-length(types)+1:-length(types)]
 types[length(types)] = "STRING"
 
-# Now ready to replace all the columns in a dataset with the following names 
+#Test exmaple of a random dataframe. 
+test <- rep(1,length(names))
+hold_test <- as.data.frame(t(test))
+colnames(hold_test) <- names
 
+# Control TYPES on each column
 
+convert_fbi_to_dataframe <- function(names,types,input_data){
+  
+  output_data <- input_data
+  colnames(output_data) <- names
+   
+  count <- 1
+  for(type in types) {
+    switch(type,
+            "STRING" = {
+            output_data[,count] <- as.character(output_data[,count])},
+            "INTEGER" = {
+              output_data[,count] <- as.integer(output_data[,count])}
+           )  
+    count <- count + 1
+  }
+  
+  return(output_data)
+}
 
+# Example of first file 
+
+fbi_2012 <- read.csv("fbi-reta-data/recoded-data/reta_2012_data.csv",header = FALSE)
+fbi_2012 <- convert_fbi_to_dataframe(names,types,fbi_2012)
 
 " 0  = Possessions (Puerto Rico, Guam, Canal Zone, Virgin Islands, and American Samoa)
 1  = All cities 250,000 or over:
