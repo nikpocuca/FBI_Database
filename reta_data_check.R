@@ -58,7 +58,45 @@ convert_fbi_to_dataframe <- function(names,types,input_data){
 # Example of first file 
 
 fbi_2012 <- read.csv("fbi-reta-data/recoded-data/reta_2012_data.csv",header = FALSE)
+
 fbi_2012 <- convert_fbi_to_dataframe(names,types,fbi_2012)
+fbi_2011 <- read.csv("~/GitRepos/fbi-reta-data/csv-files/reta_2011_data.csv")
+
+
+# Now for postgreSQL stuff :) 
+#install.packages("RPostgreSQL")
+library(RPostgreSQL)
+
+drv <- dbDriver("PostgreSQL")
+# open the connection using user, passsword, etc., as
+con <- dbConnect(drv, user = "test_r", pass = "lol",dbname = "sample_db",port= "5444", host = "localhost")
+
+# Run an SQL statement by creating first a resultSet object
+rs <- dbSendQuery(con, statement = paste(
+  "CREATE TABLE test_table_2(
+  b INTEGER
+  )"));
+
+# Works now to load in a table. 
+
+first <- dbWriteTable(
+  conn = con, 
+  name = "fbi_reta",
+  value = fbi_2012,
+  overwrite = TRUE,
+  row.names = FALSE
+)
+
+second <- dbWriteTable(
+  conn = con,
+  name = "fbi_reta",
+  value = fbi_2011,
+  append = TRUE, 
+  row.names = FALSE
+)
+
+
+# This works, now to write a function that recursively adds all of the csv files of FBI RETA in a directory. 
 
 " 0  = Possessions (Puerto Rico, Guam, Canal Zone, Virgin Islands, and American Samoa)
 1  = All cities 250,000 or over:
